@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">0ForegroundServiceTest</string>
+    <string name="message">It\'s simple test foreground service\nYou can push this buttons to start/stop end refresh notification</string>
+</resources>
