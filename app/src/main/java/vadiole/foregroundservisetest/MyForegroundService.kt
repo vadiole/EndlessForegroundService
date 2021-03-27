@@ -64,7 +64,6 @@ class MyForegroundService : LifecycleService() {
 
         if (intent != null) {
             val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-
             when (intent.action) {
                 ACTION_START -> {
                     if (!isServiceStarted) {
@@ -73,17 +72,22 @@ class MyForegroundService : LifecycleService() {
                         wakeLock = powerManager.newWakeLock(PARTIAL_WAKE_LOCK, "vadiole:lock")
                         wakeLock?.acquire()
 
-                        Timber.i("onStartCommand: starting started")
+                        Timber.i("onStartCommand: starting")
                         job = GlobalScope.launch(Dispatchers.Default) {
                             delay(1000) //  test delay for show loading notification
                             while (isServiceStarted) {
-                                val initTime = Repository.getOnCreateTime()
-                                val title = "Refresh $refreshCounter times"
-                                val message =
-                                    "onCreate time: $initTime\ncurrent time: ${LocalDateTime.now()}\ncounter: ${counter++}"
-                                val notification = createNotification(title, message)
-                                withContext(Dispatchers.Main) {
-                                    notificationManager.notify(NOTIFICATION_ID, notification)
+                                if (powerManager.isInteractive) {
+                                    Timber.v("update: counter - $counter")
+                                    val initTime = Repository.getOnCreateTime()
+                                    val title = "Refresh $refreshCounter times"
+                                    val message =
+                                        "onCreate time: $initTime\ncurrent time: ${LocalDateTime.now()}\ncounter: ${counter++}"
+                                    val notification = createNotification(title, message)
+                                    withContext(Dispatchers.Main) {
+                                        notificationManager.notify(NOTIFICATION_ID, notification)
+                                    }
+                                } else {
+                                    delay(1000)
                                 }
                                 delay(1000)
                             }
